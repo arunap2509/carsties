@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Auction.Controllers;
 
 [ApiController]
-[Route("api/auction")]
+[Route("api/auctions")]
 public class AuctionController : ControllerBase
 {
     private readonly IAuctionService _auctionService;
