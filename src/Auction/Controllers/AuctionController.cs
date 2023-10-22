@@ -1,5 +1,6 @@
 using Auction.Dto;
 using Auction.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Auction.Controllers;
@@ -28,24 +29,27 @@ public class AuctionController : ControllerBase
         return Ok(auction);
     }
 
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> CreateAuction(CreateAuctionDto createAuctionDto)
     {
-        var auction = await _auctionService.CreateAuctionAsync(createAuctionDto);
+        var auction = await _auctionService.CreateAuctionAsync(createAuctionDto, User.Identity.Name);
         return Ok(auction);
     }
 
+    [Authorize]
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateAuction(Guid id, [FromBody] UpdateAuctionDto updateAuctionDto)
     {
-        await _auctionService.UpdateAuctionAsync(id, updateAuctionDto);
+        await _auctionService.UpdateAuctionAsync(id, User.Identity.Name, updateAuctionDto);
         return Ok();
     }
 
+    [Authorize]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteAuction(Guid id)
     {
-        await _auctionService.DeleteAuctionAsync(id);
+        await _auctionService.DeleteAuctionAsync(id, User.Identity.Name);
         return Ok();
     }
 }

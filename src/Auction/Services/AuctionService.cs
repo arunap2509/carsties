@@ -13,9 +13,9 @@ public interface IAuctionService
 {
     Task<List<AuctionDto>> GetAllAuctionsAsync(string date);
     Task<List<AuctionDto>> GetAuctionByIdAsync(Guid id);
-    Task<AuctionDto> CreateAuctionAsync(CreateAuctionDto createAuctionDto);
-    Task UpdateAuctionAsync(Guid id, UpdateAuctionDto updateAuctionDto);
-    Task DeleteAuctionAsync(Guid id);
+    Task<AuctionDto> CreateAuctionAsync(CreateAuctionDto createAuctionDto, string username);
+    Task UpdateAuctionAsync(Guid id, string username, UpdateAuctionDto updateAuctionDto);
+    Task DeleteAuctionAsync(Guid id, string username);
 }
 
 public class AuctionService : IAuctionService
@@ -31,9 +31,10 @@ public class AuctionService : IAuctionService
         _publishEndpoint = publishEndpoint;
     }
 
-    public async Task<AuctionDto> CreateAuctionAsync(CreateAuctionDto createAuctionDto)
+    public async Task<AuctionDto> CreateAuctionAsync(CreateAuctionDto createAuctionDto, string username)
     {
         var auction = _mapper.Map<Auctions>(createAuctionDto);
+        auction.Seller = username;
         await _auctionDbContext.Auctions.AddAsync(auction);
 
         var auctionDto = _mapper.Map<AuctionDto>(auction);
@@ -45,13 +46,18 @@ public class AuctionService : IAuctionService
         return auctionDto;
     }
 
-    public async Task DeleteAuctionAsync(Guid id)
+    public async Task DeleteAuctionAsync(Guid id, string username)
     {
         var auction = await _auctionDbContext.Auctions.FindAsync(id);
 
         if (auction == null)
         {
             // return error response
+        }
+
+        if (auction.Seller != username)
+        {
+            // forbidden
         }
 
         _auctionDbContext.Auctions.Remove(auction);
@@ -82,13 +88,18 @@ public class AuctionService : IAuctionService
         return await auctions.ProjectTo<AuctionDto>(_mapper.ConfigurationProvider).ToListAsync();
     }
 
-    public async Task UpdateAuctionAsync(Guid id, UpdateAuctionDto updateAuctionDto)
+    public async Task UpdateAuctionAsync(Guid id, string username, UpdateAuctionDto updateAuctionDto)
     {
         var auction = await _auctionDbContext.Auctions.FindAsync(id);
 
         if (auction == null)
         {
-            // return error response
+            // not found
+        }
+
+        if (auction.Seller != username)
+        {
+            // forbidden
         }
 
         auction.Item.Make = updateAuctionDto.Make ?? auction.Item.Make;
