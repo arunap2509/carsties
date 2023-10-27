@@ -90,7 +90,7 @@ public class AuctionService : IAuctionService
 
     public async Task UpdateAuctionAsync(Guid id, string username, UpdateAuctionDto updateAuctionDto)
     {
-        var auction = await _auctionDbContext.Auctions.FindAsync(id);
+        var auction = await _auctionDbContext.Auctions.Include(x => x.Item).AsQueryable().FirstOrDefaultAsync(x => x.Id == id);
 
         if (auction == null)
         {
