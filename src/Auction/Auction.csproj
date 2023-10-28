@@ -19,10 +19,15 @@
     </PackageReference>
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="7.0.11" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+    <PackageReference Include="Grpc.AspNetCore" Version="2.55.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Contracts\Contracts.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProtoBuf Include="protos/auctions.proto" GrpcServices="Server"></ProtoBuf>
   </ItemGroup>
 
 </Project>
