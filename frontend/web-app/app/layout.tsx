@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import Navbar from './nav/Navbar'
+import ToasterProvide from './providers/ToasterProvide'
 
 export const metadata: Metadata = {
   title: 'Create Next App',
@@ -15,6 +16,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
+        <ToasterProvide />
         <Navbar />
         <main className='container mx-auto pt-10'>
           {children}

@@ -1,18 +1,15 @@
 'use server'
 
+import { fetchWrapper } from "@/lib/fetchWrapper";
 import { Auction, PagedResult } from "@/types";
 import { NextApiRequest } from "next";
 import { getToken } from "next-auth/jwt";
+import { revalidatePath } from "next/cache";
 import { headers, cookies } from 'next/headers';
+import { FieldValues } from "react-hook-form";
 
 export async function getData(query: string): Promise<PagedResult<Auction>> {
-    const response = await fetch(`http://localhost:6001/search${query}`);
-
-    if (!response.ok) {
-        throw new Error("failed to fetch data");
-    }
-
-    return response.json();
+    return await fetchWrapper.get(`search${query}`);
 }
 
 export async function updateAuctionTest() {
@@ -20,22 +17,25 @@ export async function updateAuctionTest() {
         mileage: Math.floor(Math.random() * 100000) + 1
     }
 
-    const token = await getTokenWorkaround();
+    return await fetchWrapper.put('auctions/afbee524-5972-4075-8800-7d1f9d7b0a0c', data);
+}
 
-    const respose = await fetch('http://localhost:6001/auctions/afbee524-5972-4075-8800-7d1f9d7b0a0c', {
-        method: 'PUT',
-        headers: {
-            'Content-type': 'application/json',
-            'Authorization': 'Bearer ' + token?.access_token
-        },
-        body: JSON.stringify(data)
-    })
+export async function createAuctions(data: FieldValues) {
+    return await fetchWrapper.post('auctions', data);
+}
 
-    if (!respose.ok) {
-        return { status: respose.status, message: respose.statusText }
-    }
+export async function updateAuctions(data: FieldValues, id: string) {
+    const response = await fetchWrapper.put(`auctions/${id}`, data);
+    revalidatePath(`/auctions/${id}`);
+    return response;
+}
 
-    return respose.statusText;
+export async function deleteAuction(id: string) {
+    return await fetchWrapper.del(`auctions/${id}`);
+}
+
+export async function getDetailedViewData(id: string): Promise<Auction[]> {
+    return await fetchWrapper.get(`auctions/${id}`);
 }
 
 export async function getTokenWorkaround() {
