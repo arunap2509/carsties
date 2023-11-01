@@ -3,7 +3,7 @@ import './globals.css'
 import Navbar from './nav/Navbar'
 import ToasterProvide from './providers/ToasterProvide'
 import { getCurrentUser } from './actions/authActions'
-import SignalRProvider from './providers/SIgnalRProvider'
+import SignalRProvider from './providers/SignalRProvider'
 
 export const metadata: Metadata = {
   title: 'Create Next App',
