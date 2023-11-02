@@ -34,9 +34,7 @@ export default function Listings() {
     const setPageNumber = (pageNumber: number) => setParams({ pageNumber });
 
     useEffect(() => {
-        console.log("getting data");
         getData(url).then(data => {
-            console.log(data);
             setData(data);
             setLoading(false);
         })

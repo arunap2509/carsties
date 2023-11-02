@@ -13,7 +13,6 @@ export async function getCurrentUser() {
 
         return session.user;
     } catch (e) {
-        console.log("error while getting session", e);
         return null;
     }
 }

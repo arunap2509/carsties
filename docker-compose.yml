@@ -7,6 +7,8 @@ services:
       - 5432:5432
     volumes:
       - /var/lib/postresql/data
+    networks:
+      custom:
   mongodb:
     image: mongo
     environment:
@@ -16,11 +18,15 @@ services:
       - 27017:27017
     volumes:
       - /var/lib/mongodb/data
+    networks:
+      custom:
   rabbitmq:
     image: rabbitmq:3-management-alpine
     ports:
       - 5672:5672
       - 15672:15672
+    networks:
+      custom:
   auction-svc:
     image: arunap2509/auction-svc:latest
     build:
@@ -43,6 +49,8 @@ services:
     depends_on:
       - postgres
       - rabbitmq
+    networks:
+      custom:
   search-svc:
     image: arunap2509/search-svc:latest
     build:
@@ -59,6 +67,8 @@ services:
     depends_on:
       - mongodb
       - rabbitmq
+    networks:
+      custom:
   identity-svc:
     image: arunap2509/identity-svc:latest
     build:
@@ -68,11 +78,14 @@ services:
       - ASPNETCORE_ENVIRONMENT=Docker
       - ASPNETCORE_URLS=http://+:80
       - ConnectionStrings__Default=Server=postgres:5432;User Id=postgres;Password=postgrespw;Database=identity
+      - ClientApp=http://app.carsties.com
       - AuctionServiceUrl=http://auction-svc
-    ports:
-      - 5001:80
+      - VIRTUAL_HOST=id.carsties.com
     depends_on:
       - postgres
+    networks:
+      custom:
+        ipv4_address: 10.5.0.200
   gateway-svc:
     image: arunap2509/gateway-svc:latest
     build:
@@ -81,10 +94,12 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Docker
       - ASPNETCORE_URLS=http://+:80
-    ports:
-      - 6001:80
+      - VIRTUAL_HOST=api.carsties.com
+      - ClientApp=https://app.carsties.com
     depends_on:
       - postgres
+    networks:
+      custom:
   bids-svc:
     image: arunap2509/bids-svc:latest
     build:
@@ -102,6 +117,8 @@ services:
     depends_on:
       - mongodb
       - rabbitmq
+    networks:
+      custom:
   notify-svc:
     image: arunap2509/notify-svc:latest
     build:
@@ -115,3 +132,40 @@ services:
       - 7004:80
     depends_on:
       - rabbitmq
+    networks:
+      custom:
+  web-app:
+    image: arunap2509/web-app
+    build:
+      context: .
+      dockerfile: frontend/web-app/Dockerfile
+    volumes:
+      - /var/lib/web/data
+    extra_hosts:
+      - id.carsties.com:10.5.0.200
+    environment:
+      - NEXTAUTH_SECRET=somerealsecretonlyyouknow
+      - NEXTAUTH_URL=http://app.carsties.com
+      - NEXTAUTH_URL_INTERNAL=http://web-app:3000
+      - NEXT_PUBLIC_NOTIFY_URL=http://gateway-svc/notifications
+      - API_URL=http://gateway-svc/
+      - ID_URL=http://id.carsties.com
+      - VIRTUAL_HOST=app.carsties.com
+      - VIRTUAL_PORT=3000
+    networks:
+      custom:
+  nginx-proxy:
+    image: nginxproxy/nginx-proxy
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - ./devcerts:/etc/nginx/certs
+    networks:
+      custom:
+networks:
+  custom:
+    ipam:
+      config:
+        - subnet: 10.5.0.0/16

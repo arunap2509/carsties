@@ -21,12 +21,12 @@ export default function SignalRProvider({ children, user }: Props) {
     const setCurrentPrice = useAuctionStore(state => state.setCurrentPrice);
     const addBid = useBidStore(state => state.addBid);
     const apiUrl = process.env.NODE_ENV === 'production'
-        ? 'https://api.carsties.store/notifications'
-        : process.env.NEXT_PUBLIC_NOTIFY_URL
+        ? 'https://api.carsties.com/notifications'
+        : process.env.NEXT_PUBLIC_NOTIFY_URL!
 
     useEffect(() => {
         const newConnection = new HubConnectionBuilder()
-            .withUrl('http://localhost:7004/notifications')
+            .withUrl(apiUrl)
             .withAutomaticReconnect()
             .build();
 
