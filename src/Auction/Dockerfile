@@ -12,6 +12,8 @@ COPY src/Contracts/Contracts.csproj src/Contracts/Contracts.csproj
 COPY src/IdentityService/IdentityService.csproj src/IdentityService/IdentityService.csproj
 COPY src/BiddingService/BiddingService.csproj src/BiddingService/BiddingService.csproj
 COPY src/NotificationService/NotificationService.csproj src/NotificationService/NotificationService.csproj
+COPY tests/Auction.UnitTests/Auction.UnitTests.csproj tests/Auction.UnitTests/Auction.UnitTests.csproj
+COPY tests/Auction.IntegrationTests/Auction.IntegrationTests.csproj tests/Auction.IntegrationTests/Auction.IntegrationTests.csproj
 
 # Restore package deps
 RUN dotnet restore Carsties.sln
